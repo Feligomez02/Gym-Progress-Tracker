@@ -172,18 +172,20 @@ function EditWorkoutModal({ workout, onSave, onCancel }: EditWorkoutModalProps) 
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Editar Entrenamiento
-        </h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Ejercicio: <strong>{workout.exercise.name}</strong>
-        </p>
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h3 className="modal-title">
+            Editar Entrenamiento
+          </h3>
+          <p className="modal-subtitle">
+            Ejercicio: <strong>{workout.exercise.name}</strong>
+          </p>
+        </div>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="form-group">
+            <label className="form-label">
               Peso (kg)
             </label>
             <input
@@ -191,62 +193,65 @@ function EditWorkoutModal({ workout, onSave, onCancel }: EditWorkoutModalProps) 
               step="0.1"
               value={formData.weight}
               onChange={(e) => setFormData({ ...formData, weight: parseFloat(e.target.value) })}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+              className="input-field"
               required
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Repeticiones
-            </label>
-            <input
-              type="number"
-              value={formData.repetitions}
-              onChange={(e) => setFormData({ ...formData, repetitions: parseInt(e.target.value) })}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-              required
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="form-group">
+              <label className="form-label">
+                Repeticiones
+              </label>
+              <input
+                type="number"
+                value={formData.repetitions}
+                onChange={(e) => setFormData({ ...formData, repetitions: parseInt(e.target.value) })}
+                className="input-field"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">
+                Series
+              </label>
+              <input
+                type="number"
+                value={formData.sets}
+                onChange={(e) => setFormData({ ...formData, sets: parseInt(e.target.value) })}
+                className="input-field"
+                required
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Series
-            </label>
-            <input
-              type="number"
-              value={formData.sets}
-              onChange={(e) => setFormData({ ...formData, sets: parseInt(e.target.value) })}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
+          <div className="form-group">
+            <label className="form-label">
               Notas
             </label>
             <textarea
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+              className="input-field"
               rows={3}
+              placeholder="Agrega cualquier observación..."
             />
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100">
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
+              className="btn-outline"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700"
+              className="btn-primary"
             >
-              Guardar
+              Guardar Cambios
             </button>
           </div>
         </form>

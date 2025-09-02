@@ -1,43 +1,424 @@
 @import "tailwindcss";
 
+/* Variables CSS personalizadas para el tema gym */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Paleta principal */
+  --primary: #FF6B35;
+  --primary-dark: #E85A2B;
+  --primary-light: #FF8A61;
+  
+  /* Colores secundarios */
+  --secondary: #2A2D34;
+  --secondary-light: #3A3F47;
+  --accent: #4ECDC4;
+  --accent-dark: #3BB5AC;
+  
+  /* Estados */
+  --success: #27AE60;
+  --warning: #F39C12;
+  --danger: #E74C3C;
+  --info: #3498DB;
+  
+  /* Grises mejorados */
+  --gray-50: #FAFBFC;
+  --gray-100: #F7F8FA;
+  --gray-200: #EDF0F3;
+  --gray-300: #D1D9E0;
+  --gray-400: #A8B8C8;
+  --gray-500: #79879A;
+  --gray-600: #5A6C7D;
+  --gray-700: #3E4C59;
+  --gray-800: #2A3441;
+  --gray-900: #1A202C;
+  
+  /* Shadows personalizadas */
+  --shadow-sm: 0 2px 4px rgba(42, 45, 52, 0.08);
+  --shadow-md: 0 4px 12px rgba(42, 45, 52, 0.12);
+  --shadow-lg: 0 8px 25px rgba(42, 45, 52, 0.15);
+  --shadow-xl: 0 16px 40px rgba(42, 45, 52, 0.18);
+  
+  /* Gradientes */
+  --gradient-primary: linear-gradient(135deg, #FF6B35 0%, #E85A2B 100%);
+  --gradient-secondary: linear-gradient(135deg, #4ECDC4 0%, #3BB5AC 100%);
+  --gradient-dark: linear-gradient(135deg, #2A2D34 0%, #3A3F47 100%);
+  --gradient-subtle: linear-gradient(135deg, #FAFBFC 0%, #F7F8FA 100%);
+  
+  --background: var(--gray-50);
+  --foreground: var(--gray-900);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: var(--gray-900);
+    --foreground: var(--gray-100);
   }
 }
 
+/* Mejoras de tipografía y contraste */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--gray-900);
+}
+
+h1 {
+  font-size: 2.25rem;
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: 1.875rem;
+  line-height: 1.3;
+}
+
+h3 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+/* Cards mejoradas */
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(209, 217, 224, 0.5);
+  transition: all 0.3s ease-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-gradient {
+  background: var(--gradient-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Botones mejorados */
+.btn-primary {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: white;
+  background: var(--gradient-primary);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  transition: all 0.2s ease-out;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+}
+
+.btn-secondary {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  background: var(--gradient-secondary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+  transition: all 0.2s ease-out;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+}
+
+.btn-outline {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  background: transparent;
+  transition: all 0.2s ease-out;
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Stats cards con gradientes */
+.stats-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+}
+
+.stats-card-secondary::before {
+  background: var(--gradient-secondary);
+}
+
+.stats-card-accent::before {
+  background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);
+}
+
+/* Header gradient */
+.header-gradient {
+  background: var(--gradient-dark);
+  position: relative;
+}
+
+.header-gradient::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-primary);
+}
+
+/* Inputs mejorados */
+.input-field {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  background-color: #ffffff !important;
+  transition: all 0.2s ease-out;
+  color: #1a202c !important;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+  background-color: #ffffff !important;
+}
+
+.input-field::placeholder {
+  color: #718096 !important;
+  font-weight: 400;
+}
+
+/* Específico para selects */
+select.input-field {
+  color: #1a202c !important;
+  background-color: #ffffff !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 40px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+select.input-field option {
+  color: #1a202c !important;
+  background-color: #ffffff !important;
+  padding: 8px;
+}
+
+/* Específico para textareas */
+textarea.input-field {
+  color: #1a202c !important;
+  background-color: #ffffff !important;
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Modal mejorado */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  margin: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.3s ease-out;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-header {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.modal-subtitle {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  margin-top: 4px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 6px;
+}
+
+/* Animaciones sutiles */
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+
+.bounce-gentle {
+  animation: bounceGentle 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceGentle {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
 /* Mejores estilos para inputs y selects */
 input, select, textarea {
-  color: #1f2937 !important;
+  color: var(--gray-900) !important;
   background-color: #ffffff !important;
+  border: 2px solid var(--gray-300) !important;
+  font-weight: 500 !important;
 }
 
 input::placeholder, textarea::placeholder {
-  color: #6b7280 !important;
+  color: var(--gray-600) !important;
   opacity: 1;
+  font-weight: 400 !important;
+}
+
+/* Específico para options en selects */
+select option {
+  color: var(--gray-900) !important;
+  background-color: #ffffff !important;
+  padding: 8px !important;
+  font-weight: 500 !important;
+}
+
+/* Focus states mejorados */
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1) !important;
+  outline: none !important;
 }
 
 /* Estilos para modo oscuro */
 @media (prefers-color-scheme: dark) {
   input, select, textarea {
-    color: #f9fafb !important;
-    background-color: #374151 !important;
-    border-color: #4b5563 !important;
+    color: var(--gray-900) !important;
+    background-color: #ffffff !important;
+    border-color: var(--gray-300) !important;
   }
   
   input::placeholder, textarea::placeholder {
-    color: #9ca3af !important;
+    color: var(--gray-600) !important;
   }
+  
+  select option {
+    color: var(--gray-900) !important;
+    background-color: #ffffff !important;
+  }
+}
+
+/* Utilidades para mejor contraste */
+.text-high-contrast {
+  color: var(--gray-900) !important;
+}
+
+.text-medium-contrast {
+  color: var(--gray-700) !important;
+}
+
+.text-low-contrast {
+  color: var(--gray-600) !important;
+}
+
+.bg-gradient-primary {
+  background: var(--gradient-primary);
+}
+
+.bg-gradient-secondary {
+  background: var(--gradient-secondary);
+}
+
+.bg-gradient-dark {
+  background: var(--gradient-dark);
 }

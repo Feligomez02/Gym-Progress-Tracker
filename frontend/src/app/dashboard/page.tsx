@@ -82,18 +82,18 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--gray-50)' }}>
+      {/* Header mejorado */}
+      <header className="header-gradient shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Gym Tracker</h1>
-              <p className="text-gray-600">Bienvenido, {user?.name}</p>
+          <div className="flex justify-between items-center py-6">
+            <div className="fade-in">
+              <h1 className="text-3xl font-bold" style={{ color: '#ffffff' }}>💪 Gym Tracker</h1>
+              <p className="text-gray-200 mt-1">Bienvenido, <span className="text-white font-semibold">{user?.name}</span></p>
             </div>
             <button
               onClick={logout}
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-900"
+              className="flex items-center gap-2 px-4 py-2 text-gray-200 hover:text-white transition-colors duration-200 rounded-lg hover:bg-white/10"
             >
               <LogOut size={20} />
               Cerrar Sesión
@@ -103,57 +103,64 @@ export default function DashboardPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
+        {/* Stats Cards mejoradas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <TrendingUp className="h-8 w-8 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900">Total Entrenamientos</h3>
-                <p className="text-3xl font-bold text-blue-600">{workouts.length}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <BarChart3 className="h-8 w-8 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900">Ejercicios Disponibles</h3>
-                <p className="text-3xl font-bold text-green-600">{exercises.length}</p>
+          <div className="card stats-card slide-up">
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0 p-3 rounded-lg" style={{ backgroundColor: 'rgba(255, 107, 53, 0.1)' }}>
+                  <TrendingUp className="h-8 w-8" style={{ color: 'var(--primary)' }} />
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-semibold text-high-contrast">Total Entrenamientos</h3>
+                  <p className="text-3xl font-bold" style={{ color: 'var(--primary)' }}>{workouts.length}</p>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Plus className="h-8 w-8 text-purple-600" />
+          <div className="card stats-card stats-card-secondary slide-up" style={{ animationDelay: '0.1s' }}>
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0 p-3 rounded-lg" style={{ backgroundColor: 'rgba(78, 205, 196, 0.1)' }}>
+                  <BarChart3 className="h-8 w-8" style={{ color: 'var(--accent)' }} />
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-semibold text-high-contrast">Ejercicios Disponibles</h3>
+                  <p className="text-3xl font-bold" style={{ color: 'var(--accent)' }}>{exercises.length}</p>
+                </div>
               </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900">Esta Semana</h3>
-                <p className="text-3xl font-bold text-purple-600">
-                  {workouts.filter(w => {
-                    const workoutDate = new Date(w.date);
-                    const weekAgo = new Date();
-                    weekAgo.setDate(weekAgo.getDate() - 7);
-                    return workoutDate >= weekAgo;
-                  }).length}
-                </p>
+            </div>
+          </div>
+
+          <div className="card stats-card stats-card-accent slide-up" style={{ animationDelay: '0.2s' }}>
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0 p-3 rounded-lg" style={{ backgroundColor: 'rgba(52, 152, 219, 0.1)' }}>
+                  <Plus className="h-8 w-8" style={{ color: 'var(--info)' }} />
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-semibold text-high-contrast">Esta Semana</h3>
+                  <p className="text-3xl font-bold" style={{ color: 'var(--info)' }}>
+                    {workouts.filter(w => {
+                      const workoutDate = new Date(w.date);
+                      const weekAgo = new Date();
+                      weekAgo.setDate(weekAgo.getDate() - 7);
+                      return workoutDate >= weekAgo;
+                    }).length}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Workout Form */}
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b">
-              <h2 className="text-xl font-semibold text-gray-900">Registrar Entrenamiento</h2>
+          {/* Workout Form mejorado */}
+          <div className="card fade-in">
+            <div className="p-6 border-b border-gray-100">
+              <h2 className="text-xl font-semibold text-high-contrast">Registrar Entrenamiento</h2>
+              <p className="text-medium-contrast mt-1">Añade un nuevo registro de ejercicio</p>
             </div>
             <div className="p-6">
               {showWorkoutForm ? (
@@ -165,52 +172,61 @@ export default function DashboardPage() {
               ) : (
                 <button
                   onClick={() => setShowWorkoutForm(true)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-500 hover:text-blue-600 transition-colors"
+                  className="w-full flex items-center justify-center gap-3 px-6 py-4 border-2 border-dashed rounded-lg text-medium-contrast hover:border-primary hover:text-primary transition-all duration-200 hover:bg-gray-50"
+                  style={{ borderColor: 'var(--gray-300)' }}
                 >
                   <Plus size={24} />
-                  Agregar Entrenamiento
+                  <span className="font-medium">Agregar Entrenamiento</span>
                 </button>
               )}
             </div>
           </div>
 
-          {/* Progress Chart */}
-          <div className="bg-white rounded-lg shadow">
-            <div className="p-6 border-b">
-              <h2 className="text-xl font-semibold text-gray-900">Progreso</h2>
+          {/* Progress Chart mejorado */}
+          <div className="card fade-in">
+            <div className="p-6 border-b border-gray-100">
+              <h2 className="text-xl font-semibold text-high-contrast">Progreso</h2>
+              <p className="text-medium-contrast mt-1">Visualiza tu evolución</p>
+            </div>
+            <div className="p-6">
               <select
                 value={selectedExerciseForChart || ''}
                 onChange={(e) => setSelectedExerciseForChart(Number(e.target.value) || null)}
-                className="mt-2 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                className="input-field mb-4"
               >
-                <option value="" className="text-gray-500">Seleccionar ejercicio</option>
+                <option value="" className="text-medium-contrast">Seleccionar ejercicio</option>
                 {exercises.map((exercise) => (
-                  <option key={exercise.id} value={exercise.id} className="text-gray-900">
+                  <option key={exercise.id} value={exercise.id} className="text-high-contrast">
                     {exercise.name}
                   </option>
                 ))}
               </select>
-            </div>
-            <div className="p-6">
               {selectedExerciseForChart ? (
-                <ProgressChart exerciseId={selectedExerciseForChart} />
+                <div className="slide-up">
+                  <ProgressChart exerciseId={selectedExerciseForChart} />
+                </div>
               ) : (
-                <div className="text-center text-gray-500 py-8">
-                  Selecciona un ejercicio para ver el progreso
+                <div className="text-center text-low-contrast py-12">
+                  <BarChart3 size={48} className="mx-auto mb-4 opacity-50" />
+                  <p className="font-medium">Selecciona un ejercicio</p>
+                  <p className="text-sm">para ver tu progreso</p>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        {/* Exercise Management */}
-        <div className="mt-8 bg-white rounded-lg shadow">
-          <div className="p-6 border-b">
+        {/* Exercise Management mejorado */}
+        <div className="mt-8 card fade-in">
+          <div className="p-6 border-b border-gray-100">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">Gestión de Ejercicios</h2>
+              <div>
+                <h2 className="text-xl font-semibold text-high-contrast">Gestión de Ejercicios</h2>
+                <p className="text-medium-contrast mt-1">Administra tu catálogo de ejercicios</p>
+              </div>
               <button
                 onClick={() => setShowExerciseForm(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                className="btn-secondary flex items-center gap-2"
               >
                 <Dumbbell size={18} />
                 Agregar Ejercicio
@@ -219,33 +235,49 @@ export default function DashboardPage() {
           </div>
           <div className="p-6">
             {showExerciseForm ? (
-              <ExerciseForm
-                onExerciseAdded={handleExerciseAdded}
-                onCancel={() => setShowExerciseForm(false)}
-              />
+              <div className="slide-up">
+                <ExerciseForm
+                  onExerciseAdded={handleExerciseAdded}
+                  onCancel={() => setShowExerciseForm(false)}
+                />
+              </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {exercises.length > 0 ? (
-                  exercises.map((exercise) => (
-                    <div key={exercise.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  exercises.map((exercise, index) => (
+                    <div 
+                      key={exercise.id} 
+                      className="card border border-gray-200 p-4 hover:shadow-md transition-all duration-200 fade-in"
+                      style={{ animationDelay: `${index * 0.05}s` }}
+                    >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="font-medium text-gray-900">{exercise.name}</h3>
-                          <p className="text-sm text-blue-600 mt-1">{exercise.muscle_group}</p>
+                          <h3 className="font-semibold text-high-contrast">{exercise.name}</h3>
+                          <p className="text-sm font-medium mt-1" style={{ color: 'var(--accent)' }}>
+                            {exercise.muscle_group}
+                          </p>
                           {exercise.description && (
-                            <p className="text-sm text-gray-600 mt-2">{exercise.description}</p>
+                            <p className="text-sm text-medium-contrast mt-2 line-clamp-2">
+                              {exercise.description}
+                            </p>
                           )}
                         </div>
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        <span 
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            exercise.user_id 
+                              ? 'bg-gradient-primary text-white' 
+                              : 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
                           {exercise.user_id ? 'Personal' : 'Predefinido'}
                         </span>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="col-span-full text-center text-gray-500 py-8">
-                    <Dumbbell size={48} className="mx-auto mb-4 text-gray-300" />
-                    <p>No hay ejercicios disponibles</p>
+                  <div className="col-span-full text-center text-low-contrast py-12">
+                    <Dumbbell size={48} className="mx-auto mb-4 opacity-50" />
+                    <p className="font-medium">No hay ejercicios disponibles</p>
                     <p className="text-sm">Agrega tu primer ejercicio personalizado</p>
                   </div>
                 )}
@@ -254,10 +286,18 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Recent Workouts */}
-        <div className="mt-8 bg-white rounded-lg shadow">
-          <div className="p-6 border-b">
-            <h2 className="text-xl font-semibold text-gray-900">Entrenamientos Recientes</h2>
+        {/* Recent Workouts mejorado */}
+        <div className="mt-8 card fade-in">
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-high-contrast">Entrenamientos Recientes</h2>
+                <p className="text-medium-contrast mt-1">Últimos 10 entrenamientos registrados</p>
+              </div>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-primary text-white">
+                {workouts.length} total
+              </span>
+            </div>
           </div>
           <div className="p-6">
             <WorkoutList workouts={workouts.slice(0, 10)} onWorkoutUpdated={handleWorkoutUpdated} />

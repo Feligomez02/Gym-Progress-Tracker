@@ -54,21 +54,21 @@ export default function ExerciseForm({ onExerciseAdded, onCancel }: ExerciseForm
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Agregar Ejercicio Personalizado</h3>
+    <div className="card p-6 slide-up">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-semibold text-high-contrast">Agregar Ejercicio Personalizado</h3>
         <button
           onClick={onCancel}
-          className="text-gray-400 hover:text-gray-600 transition-colors"
+          className="text-low-contrast hover:text-medium-contrast transition-colors p-1 rounded"
         >
           <X size={20} />
         </button>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-800 mb-1">
-            Nombre del ejercicio *
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="form-group">
+          <label className="form-label">
+            Nombre del Ejercicio
           </label>
           <input
             {...register('name', { 
@@ -76,73 +76,83 @@ export default function ExerciseForm({ onExerciseAdded, onCancel }: ExerciseForm
               minLength: { value: 2, message: 'Mínimo 2 caracteres' }
             })}
             type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+            className="input-field"
             placeholder="Ej: Press inclinado con mancuernas"
           />
           {errors.name && (
-            <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+            <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>
+              {errors.name.message}
+            </p>
           )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-800 mb-1">
-            Grupo muscular *
+        <div className="form-group">
+          <label className="form-label">
+            Grupo Muscular
           </label>
           <select
             {...register('muscle_group', { required: 'Selecciona un grupo muscular' })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+            className="input-field"
           >
-            <option value="" className="text-gray-500">Seleccionar grupo muscular</option>
+            <option value="">Seleccionar grupo muscular</option>
             {muscleGroups.map((group) => (
-              <option key={group} value={group} className="text-gray-900">
+              <option key={group} value={group}>
                 {group}
               </option>
             ))}
           </select>
           {errors.muscle_group && (
-            <p className="mt-1 text-sm text-red-600">{errors.muscle_group.message}</p>
+            <p className="mt-1 text-sm" style={{ color: 'var(--danger)' }}>
+              {errors.muscle_group.message}
+            </p>
           )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-800 mb-1">
+        <div className="form-group">
+          <label className="form-label">
             Descripción (opcional)
           </label>
           <textarea
             {...register('description')}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+            className="input-field"
             placeholder="Descripción del ejercicio, técnica, consejos..."
           />
         </div>
 
         {error && (
-          <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md">
-            {error}
+          <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(231, 76, 60, 0.1)', border: '1px solid var(--danger)' }}>
+            <p className="text-sm font-medium" style={{ color: 'var(--danger)' }}>
+              {error}
+            </p>
           </div>
         )}
 
-        <div className="flex gap-3 pt-2">
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              'Creando...'
-            ) : (
-              <>
-                <Plus size={18} />
-                Crear Ejercicio
-              </>
-            )}
-          </button>
+        <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="btn-outline"
+            disabled={isLoading}
           >
             Cancelar
+          </button>
+          <button
+            type="submit"
+            className="btn-secondary"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Creando...
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Plus size={16} />
+                Crear Ejercicio
+              </div>
+            )}
           </button>
         </div>
       </form>
