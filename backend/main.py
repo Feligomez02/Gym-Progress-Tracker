@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -8,6 +8,8 @@ import jwt
 from passlib.context import CryptContext
 import os
 from dotenv import load_dotenv
+import time
+from collections import defaultdict
 
 from database import get_db, engine
 from models import Base, User, Exercise, WorkoutEntry
@@ -47,22 +49,72 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Gym Tracker API", version="1.0.0")
 
-# CORS middleware
+# Rate limiting simple
+request_counts = defaultdict(list)
+
+async def rate_limit_middleware(request: Request, call_next):
+    client_ip = request.client.host
+    current_time = time.time()
+    
+    # Limpiar requests antiguos (últimos 60 segundos)
+    request_counts[client_ip] = [
+        req_time for req_time in request_counts[client_ip] 
+        if current_time - req_time < 60
+    ]
+    
+    # Verificar límite (100 requests por minuto por IP)
+    if len(request_counts[client_ip]) >= 100:
+        raise HTTPException(
+            status_code=429,
+            detail="Too many requests. Please try again later."
+        )
+    
+    request_counts[client_ip].append(current_time)
+    response = await call_next(request)
+    return response
+
+app.middleware("http")(rate_limit_middleware)
+
+# CORS middleware - CONFIGURACIÓN FLEXIBLE PARA DESARROLLO
+def get_allowed_origins():
+    """Obtiene los orígenes permitidos basados en el entorno"""
+    environment = os.getenv("ENVIRONMENT", "development")
+    
+    if environment == "production":
+        # En producción, solo orígenes específicos
+        return os.getenv("ALLOWED_ORIGINS", "").split(",")
+    else:
+        # En desarrollo, permitir localhost y red local
+        return [
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "http://192.168.0.220:3000",
+            "http://192.168.0.220:8001",
+            # Permitir cualquier IP de red local en desarrollo
+            "http://192.168.*:3000",
+            "http://10.*:3000",
+        ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En desarrollo permite todos los orígenes
+    allow_origins=["*"] if os.getenv("ENVIRONMENT", "development") == "development" else get_allowed_origins(),
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# JWT settings
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here")
+# JWT settings - MEJORADOS
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+# Validar que SECRET_KEY esté configurada en producción
+if SECRET_KEY == "your-secret-key-here-change-in-production":
+    import warnings
+    warnings.warn("⚠️  SECURITY WARNING: Using default SECRET_KEY. Change this in production!")
 
 # Security
 security = HTTPBearer()
@@ -174,13 +226,34 @@ def get_workouts(current_user: User = Depends(get_current_user), db: Session = D
 
 @app.post("/api/workouts", response_model=WorkoutEntryResponse)
 def create_workout(workout_data: WorkoutEntryCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Verificar que el ejercicio existe y el usuario tiene acceso
+    exercise = db.query(Exercise).filter(
+        Exercise.id == workout_data.exercise_id,
+        (Exercise.user_id == current_user.id) | (Exercise.user_id.is_(None))
+    ).first()
+    
+    if not exercise:
+        raise HTTPException(
+            status_code=404,
+            detail="Exercise not found or you don't have access to it"
+        )
+    
+    # Validar fecha (no puede ser futura más de 1 día)
+    workout_date = workout_data.date or datetime.utcnow()
+    if workout_date > datetime.utcnow() + timedelta(days=1):
+        raise HTTPException(
+            status_code=400,
+            detail="Workout date cannot be more than 1 day in the future"
+        )
+    
     workout = WorkoutEntry(
         user_id=current_user.id,
         exercise_id=workout_data.exercise_id,
         weight=workout_data.weight,
         repetitions=workout_data.repetitions,
         sets=workout_data.sets,
-        date=workout_data.date
+        date=workout_date,
+        notes=workout_data.notes
     )
     db.add(workout)
     db.commit()
