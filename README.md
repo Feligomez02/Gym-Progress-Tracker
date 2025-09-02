@@ -294,6 +294,4 @@ Si tienes problemas con JWT tokens:
 4. Push a la rama
 5. Crear Pull Request
 
-## Licencia
 
-Este proyecto está bajo la licencia MIT.
