@@ -57,6 +57,10 @@ export default function DashboardPage() {
     setShowWorkoutForm(false);
   };
 
+  const handleWorkoutUpdated = () => {
+    loadData(); // Recargar todos los datos cuando se actualiza o elimina un workout
+  };
+
   const handleExerciseAdded = (newExercise: Exercise) => {
     setExercises([...exercises, newExercise]);
     setShowExerciseForm(false);
@@ -256,7 +260,7 @@ export default function DashboardPage() {
             <h2 className="text-xl font-semibold text-gray-900">Entrenamientos Recientes</h2>
           </div>
           <div className="p-6">
-            <WorkoutList workouts={workouts.slice(0, 10)} />
+            <WorkoutList workouts={workouts.slice(0, 10)} onWorkoutUpdated={handleWorkoutUpdated} />
           </div>
         </div>
       </main>

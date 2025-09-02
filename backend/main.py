@@ -35,8 +35,8 @@ def get_db():
         db.close()
 from schemas import (
     UserCreate, UserLogin, UserResponse, Token,
-    ExerciseCreate, ExerciseResponse,
-    WorkoutEntryCreate, WorkoutEntryResponse,
+    ExerciseCreate, ExerciseUpdate, ExerciseResponse,
+    WorkoutEntryCreate, WorkoutEntryUpdate, WorkoutEntryResponse,
     ProgressStats
 )
 
@@ -216,6 +216,116 @@ def get_exercise_progress(exercise_id: int, current_user: User = Depends(get_cur
         total_sessions=len(workouts),
         progress_data=progress_data
     )
+
+# Update endpoints
+@app.put("/api/exercises/{exercise_id}", response_model=ExerciseResponse)
+def update_exercise(
+    exercise_id: int, 
+    exercise_data: ExerciseUpdate, 
+    current_user: User = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+):
+    # Find the exercise
+    exercise = db.query(Exercise).filter(
+        Exercise.id == exercise_id,
+        Exercise.user_id == current_user.id  # Only allow editing own custom exercises
+    ).first()
+    
+    if not exercise:
+        raise HTTPException(
+            status_code=404, 
+            detail="Exercise not found or you don't have permission to edit it"
+        )
+    
+    # Update only provided fields
+    update_data = exercise_data.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(exercise, field, value)
+    
+    db.commit()
+    db.refresh(exercise)
+    return exercise
+
+@app.put("/api/workouts/{workout_id}", response_model=WorkoutEntryResponse)
+def update_workout(
+    workout_id: int, 
+    workout_data: WorkoutEntryUpdate, 
+    current_user: User = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+):
+    # Find the workout
+    workout = db.query(WorkoutEntry).filter(
+        WorkoutEntry.id == workout_id,
+        WorkoutEntry.user_id == current_user.id
+    ).first()
+    
+    if not workout:
+        raise HTTPException(
+            status_code=404, 
+            detail="Workout not found or you don't have permission to edit it"
+        )
+    
+    # Update only provided fields
+    update_data = workout_data.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(workout, field, value)
+    
+    db.commit()
+    db.refresh(workout)
+    return workout
+
+# Delete endpoints
+@app.delete("/api/exercises/{exercise_id}")
+def delete_exercise(
+    exercise_id: int, 
+    current_user: User = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+):
+    # Find the exercise
+    exercise = db.query(Exercise).filter(
+        Exercise.id == exercise_id,
+        Exercise.user_id == current_user.id  # Only allow deleting own custom exercises
+    ).first()
+    
+    if not exercise:
+        raise HTTPException(
+            status_code=404, 
+            detail="Exercise not found or you don't have permission to delete it"
+        )
+    
+    # Check if exercise is used in workouts
+    workout_count = db.query(WorkoutEntry).filter(WorkoutEntry.exercise_id == exercise_id).count()
+    if workout_count > 0:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Cannot delete exercise. It is used in {workout_count} workout(s)"
+        )
+    
+    db.delete(exercise)
+    db.commit()
+    return {"message": "Exercise deleted successfully"}
+
+@app.delete("/api/workouts/{workout_id}")
+def delete_workout(
+    workout_id: int, 
+    current_user: User = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+):
+    # Find the workout
+    workout = db.query(WorkoutEntry).filter(
+        WorkoutEntry.id == workout_id,
+        WorkoutEntry.user_id == current_user.id
+    ).first()
+    
+    if not workout:
+        raise HTTPException(
+            status_code=404, 
+            detail="Workout not found or you don't have permission to delete it"
+        )
+    
+    db.delete(workout)
+    db.commit()
+    return {"message": "Workout deleted successfully"}
 
 if __name__ == "__main__":
     import uvicorn

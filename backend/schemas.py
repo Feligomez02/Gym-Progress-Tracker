@@ -30,6 +30,11 @@ class ExerciseCreate(BaseModel):
     description: Optional[str] = None
     muscle_group: str
 
+class ExerciseUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    muscle_group: Optional[str] = None
+
 class ExerciseResponse(BaseModel):
     id: int
     name: str
@@ -46,6 +51,14 @@ class WorkoutEntryCreate(BaseModel):
     weight: float
     repetitions: int
     sets: int
+    date: Optional[datetime] = None
+    notes: Optional[str] = None
+
+class WorkoutEntryUpdate(BaseModel):
+    exercise_id: Optional[int] = None
+    weight: Optional[float] = None
+    repetitions: Optional[int] = None
+    sets: Optional[int] = None
     date: Optional[datetime] = None
     notes: Optional[str] = None
 
