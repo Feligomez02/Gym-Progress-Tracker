@@ -428,6 +428,73 @@ input:focus, select:focus, textarea:focus {
   background: var(--gradient-primary);
 }
 
+/* Utilidades adicionales para ejercicios clickeables */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Efectos hover para cards clickeables */
+.card.cursor-pointer:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card.group:hover {
+  border-color: var(--primary) !important;
+}
+
+/* Animación de escala suave */
+.hover\:scale-105:hover {
+  transform: scale(1.02) translateY(-2px);
+}
+
+/* Transiciones suaves para todos los elementos interactivos */
+.cursor-pointer {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mejoras para el indicador de click */
+.group:hover .text-primary {
+  color: var(--primary) !important;
+}
+
+/* Responsive mejoras para móviles */
+@media (max-width: 768px) {
+  .card.cursor-pointer:hover {
+    transform: none;
+  }
+  
+  .hover\:scale-105:hover {
+    transform: none;
+  }
+}
+
+/* Pulso para indicar interactividad */
+@keyframes pulse-primary {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.pulse-primary {
+  animation: pulse-primary 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 .bg-gradient-secondary {
   background: var(--gradient-secondary);
 }

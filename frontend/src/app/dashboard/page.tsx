@@ -18,6 +18,7 @@ export default function DashboardPage() {
   const [showWorkoutForm, setShowWorkoutForm] = useState(false);
   const [showExerciseForm, setShowExerciseForm] = useState(false);
   const [selectedExerciseForChart, setSelectedExerciseForChart] = useState<number | null>(null);
+  const [preSelectedExerciseId, setPreSelectedExerciseId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Redirect to login if not authenticated
@@ -55,6 +56,7 @@ export default function DashboardPage() {
   const handleWorkoutAdded = (newWorkout: WorkoutEntry) => {
     setWorkouts([newWorkout, ...workouts]);
     setShowWorkoutForm(false);
+    setPreSelectedExerciseId(null); // Limpiar la pre-selección
   };
 
   const handleWorkoutUpdated = () => {
@@ -64,6 +66,23 @@ export default function DashboardPage() {
   const handleExerciseAdded = (newExercise: Exercise) => {
     setExercises([...exercises, newExercise]);
     setShowExerciseForm(false);
+  };
+
+  // Nueva función para manejar click en ejercicio
+  const handleExerciseClick = (exerciseId: number) => {
+    setPreSelectedExerciseId(exerciseId);
+    setShowWorkoutForm(true);
+    // Scroll hacia el formulario de entrenamiento
+    document.querySelector('[data-workout-form]')?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'center' 
+    });
+  };
+
+  // Función para cancelar el formulario y limpiar pre-selección
+  const handleWorkoutFormCancel = () => {
+    setShowWorkoutForm(false);
+    setPreSelectedExerciseId(null);
   };
 
   if (authLoading || loading) {
@@ -157,17 +176,23 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Workout Form mejorado */}
-          <div className="card fade-in">
+          <div className="card fade-in" data-workout-form>
             <div className="p-6 border-b border-gray-100">
               <h2 className="text-xl font-semibold text-high-contrast">Registrar Entrenamiento</h2>
-              <p className="text-medium-contrast mt-1">Añade un nuevo registro de ejercicio</p>
+              <p className="text-medium-contrast mt-1">
+                {preSelectedExerciseId 
+                  ? `Registrar ${exercises.find(e => e.id === preSelectedExerciseId)?.name || 'ejercicio'}`
+                  : 'Añade un nuevo registro de ejercicio'
+                }
+              </p>
             </div>
             <div className="p-6">
               {showWorkoutForm ? (
                 <WorkoutForm
                   exercises={exercises}
+                  preSelectedExerciseId={preSelectedExerciseId}
                   onWorkoutAdded={handleWorkoutAdded}
-                  onCancel={() => setShowWorkoutForm(false)}
+                  onCancel={handleWorkoutFormCancel}
                 />
               ) : (
                 <button
@@ -337,15 +362,17 @@ export default function DashboardPage() {
                             {exercisesInGroup.map((exercise, index) => (
                               <div 
                                 key={exercise.id} 
-                                className="card border border-gray-200 p-4 hover:shadow-md transition-all duration-200 slide-up"
+                                onClick={() => handleExerciseClick(exercise.id)}
+                                className="card border border-gray-200 p-4 hover:shadow-md transition-all duration-200 slide-up cursor-pointer hover:scale-105 group"
                                 style={{ 
                                   animationDelay: `${(groupIndex * 0.1) + (index * 0.05)}s`,
                                   borderLeft: `4px solid ${muscleGroup.color}`
                                 }}
+                                title="Click para registrar entrenamiento con este ejercicio"
                               >
                                 <div className="flex items-start justify-between">
                                   <div className="flex-1">
-                                    <h4 className="font-semibold text-high-contrast">
+                                    <h4 className="font-semibold text-high-contrast group-hover:text-primary transition-colors">
                                       {exercise.name}
                                     </h4>
                                     {exercise.description && (
@@ -353,6 +380,13 @@ export default function DashboardPage() {
                                         {exercise.description}
                                       </p>
                                     )}
+                                    {/* Indicador visual de que es clickeable */}
+                                    <div className="flex items-center gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <Plus size={14} style={{ color: 'var(--primary)' }} />
+                                      <span className="text-xs text-primary font-medium">
+                                        Click para entrenar
+                                      </span>
+                                    </div>
                                   </div>
                                   <span 
                                     className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${

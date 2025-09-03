@@ -6,6 +6,7 @@ import { workoutsAPI, Exercise, WorkoutEntry } from '@/lib/api';
 
 interface WorkoutFormProps {
   exercises: Exercise[];
+  preSelectedExerciseId?: number | null;
   onWorkoutAdded: (workout: WorkoutEntry) => void;
   onCancel: () => void;
 }
@@ -20,11 +21,11 @@ interface WorkoutFormData {
   notes?: string;
 }
 
-export default function WorkoutForm({ exercises, onWorkoutAdded, onCancel }: WorkoutFormProps) {
+export default function WorkoutForm({ exercises, preSelectedExerciseId, onWorkoutAdded, onCancel }: WorkoutFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
-  const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<WorkoutFormData>();
+  const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<WorkoutFormData>();
 
   // Observar el ejercicio seleccionado
   const watchedExerciseId = watch('exercise_id');
@@ -36,6 +37,15 @@ export default function WorkoutForm({ exercises, onWorkoutAdded, onCancel }: Wor
       setSelectedExercise(exercise || null);
     }
   }, [watchedExerciseId, exercises]);
+
+  // Pre-seleccionar ejercicio si se proporciona
+  useEffect(() => {
+    if (preSelectedExerciseId && exercises.length > 0) {
+      setValue('exercise_id', preSelectedExerciseId);
+      const exercise = exercises.find(ex => ex.id === preSelectedExerciseId);
+      setSelectedExercise(exercise || null);
+    }
+  }, [preSelectedExerciseId, exercises, setValue]);
 
   // Determinar qué campos mostrar según el grupo muscular
   const getFieldsForMuscleGroup = (muscleGroup: string | undefined) => {
