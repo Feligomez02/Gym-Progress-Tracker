@@ -38,9 +38,11 @@ class WorkoutEntry(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     exercise_id = Column(Integer, ForeignKey("exercises.id"))
-    weight = Column(Float)
-    repetitions = Column(Integer)
-    sets = Column(Integer)
+    weight = Column(Float, nullable=True)  # Opcional para cardio/abdomen
+    repetitions = Column(Integer, nullable=True)  # Opcional para cardio
+    sets = Column(Integer, nullable=True)  # Opcional para cardio
+    time_minutes = Column(Float, nullable=True)  # Para cardio y abdomen
+    distance_km = Column(Float, nullable=True)  # Para cardio
     date = Column(DateTime, default=datetime.utcnow)
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)

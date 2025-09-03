@@ -240,6 +240,19 @@ select.input-field option {
   padding: 8px;
 }
 
+select.input-field optgroup {
+  font-weight: 600;
+  color: var(--primary) !important;
+  background-color: #f8fafc !important;
+  padding: 4px 8px;
+}
+
+select.input-field optgroup option {
+  font-weight: 400;
+  color: var(--gray-700) !important;
+  padding-left: 16px;
+}
+
 /* Específico para textareas */
 textarea.input-field {
   color: #1a202c !important;

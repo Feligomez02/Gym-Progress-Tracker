@@ -252,6 +252,8 @@ def create_workout(workout_data: WorkoutEntryCreate, current_user: User = Depend
         weight=workout_data.weight,
         repetitions=workout_data.repetitions,
         sets=workout_data.sets,
+        time_minutes=workout_data.time_minutes,
+        distance_km=workout_data.distance_km,
         date=workout_date,
         notes=workout_data.notes
     )
@@ -262,6 +264,11 @@ def create_workout(workout_data: WorkoutEntryCreate, current_user: User = Depend
 
 @app.get("/api/progress/{exercise_id}", response_model=ProgressStats)
 def get_exercise_progress(exercise_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Obtener el ejercicio para determinar su tipo
+    exercise = db.query(Exercise).filter(Exercise.id == exercise_id).first()
+    if not exercise:
+        raise HTTPException(status_code=404, detail="Exercise not found")
+    
     workouts = db.query(WorkoutEntry).filter(
         WorkoutEntry.user_id == current_user.id,
         WorkoutEntry.exercise_id == exercise_id
@@ -269,24 +276,93 @@ def get_exercise_progress(exercise_id: int, current_user: User = Depends(get_cur
     
     if not workouts:
         return ProgressStats(
-            max_weight=0,
-            avg_weight=0,
-            last_weight=0,
+            max_primary=0,
+            avg_primary=0,
+            last_primary=0,
             total_sessions=0,
+            primary_metric_name="Peso",
+            primary_metric_unit="kg",
             progress_data=[]
         )
     
-    weights = [w.weight for w in workouts]
-    progress_data = [
-        {"date": w.date.isoformat(), "weight": w.weight, "reps": w.repetitions, "sets": w.sets}
-        for w in sorted(workouts, key=lambda x: x.date)
-    ]
+    # Determinar la métrica principal según el grupo muscular
+    def get_primary_metric_config(muscle_group: str):
+        if muscle_group == 'Cardio':
+            return {
+                'field': 'time_minutes',
+                'name': 'Tiempo',
+                'unit': 'min',
+                'fallback_field': 'distance_km',
+                'fallback_name': 'Distancia',
+                'fallback_unit': 'km'
+            }
+        elif muscle_group == 'Abdomen':
+            return {
+                'field': 'repetitions',
+                'name': 'Repeticiones',
+                'unit': 'reps',
+                'fallback_field': 'time_minutes',
+                'fallback_name': 'Tiempo',
+                'fallback_unit': 'min'
+            }
+        else:
+            return {
+                'field': 'weight',
+                'name': 'Peso',
+                'unit': 'kg',
+                'fallback_field': 'repetitions',
+                'fallback_name': 'Repeticiones',
+                'fallback_unit': 'reps'
+            }
+    
+    config = get_primary_metric_config(exercise.muscle_group)
+    
+    # Extraer valores de la métrica principal
+    primary_values = []
+    progress_data = []
+    
+    for w in sorted(workouts, key=lambda x: x.date):
+        # Obtener valor principal
+        primary_value = getattr(w, config['field'], None)
+        if primary_value is None and 'fallback_field' in config:
+            primary_value = getattr(w, config['fallback_field'], None)
+        
+        if primary_value is not None:
+            primary_values.append(primary_value)
+            
+            # Determinar etiqueta basada en qué campo se usó
+            used_field = config['field'] if getattr(w, config['field'], None) is not None else config.get('fallback_field', config['field'])
+            label = config['name'] if used_field == config['field'] else config.get('fallback_name', config['name'])
+            
+            progress_data.append({
+                "date": w.date.isoformat(),
+                "weight": w.weight,
+                "reps": w.repetitions,
+                "sets": w.sets,
+                "time_minutes": w.time_minutes,
+                "distance_km": w.distance_km,
+                "primary_metric": primary_value,
+                "primary_label": label
+            })
+    
+    if not primary_values:
+        return ProgressStats(
+            max_primary=0,
+            avg_primary=0,
+            last_primary=0,
+            total_sessions=len(workouts),
+            primary_metric_name=config['name'],
+            primary_metric_unit=config['unit'],
+            progress_data=[]
+        )
     
     return ProgressStats(
-        max_weight=max(weights),
-        avg_weight=sum(weights) / len(weights),
-        last_weight=weights[-1],
+        max_primary=max(primary_values),
+        avg_primary=sum(primary_values) / len(primary_values),
+        last_primary=primary_values[-1] if primary_values else 0,
         total_sessions=len(workouts),
+        primary_metric_name=config['name'],
+        primary_metric_unit=config['unit'],
         progress_data=progress_data
     )
 

@@ -77,26 +77,41 @@ class ExerciseResponse(BaseModel):
 # Workout entry schemas
 class WorkoutEntryCreate(BaseModel):
     exercise_id: int = Field(..., gt=0)
-    weight: float = Field(..., ge=0, le=1000)  # 0-1000 kg
-    repetitions: int = Field(..., ge=1, le=1000)  # 1-1000 reps
-    sets: int = Field(..., ge=1, le=50)  # 1-50 sets
+    weight: Optional[float] = Field(None, ge=0, le=1000)  # Opcional para cardio
+    repetitions: Optional[int] = Field(None, ge=1, le=1000)  # Opcional para cardio
+    sets: Optional[int] = Field(None, ge=1, le=50)  # Opcional para cardio
+    time_minutes: Optional[float] = Field(None, ge=0, le=1440)  # 0-24 horas
+    distance_km: Optional[float] = Field(None, ge=0, le=1000)  # 0-1000 km
     date: Optional[datetime] = None
     notes: Optional[str] = Field(None, max_length=500)
+    
+    @validator('weight', 'repetitions', 'sets', 'time_minutes', 'distance_km')
+    def at_least_one_metric(cls, v, values):
+        # Al menos uno de los campos principales debe estar presente
+        metrics = ['weight', 'repetitions', 'sets', 'time_minutes', 'distance_km']
+        provided_metrics = [k for k in metrics if values.get(k) is not None or v is not None]
+        if len(provided_metrics) == 0:
+            raise ValueError('Al menos un campo de medición es requerido')
+        return v
 
 class WorkoutEntryUpdate(BaseModel):
     exercise_id: Optional[int] = Field(None, gt=0)
     weight: Optional[float] = Field(None, ge=0, le=1000)
     repetitions: Optional[int] = Field(None, ge=1, le=1000)
     sets: Optional[int] = Field(None, ge=1, le=50)
+    time_minutes: Optional[float] = Field(None, ge=0, le=1440)
+    distance_km: Optional[float] = Field(None, ge=0, le=1000)
     date: Optional[datetime] = None
     notes: Optional[str] = Field(None, max_length=500)
 
 class WorkoutEntryResponse(BaseModel):
     id: int
     exercise_id: int
-    weight: float
-    repetitions: int
-    sets: int
+    weight: Optional[float]
+    repetitions: Optional[int]
+    sets: Optional[int]
+    time_minutes: Optional[float]
+    distance_km: Optional[float]
     date: datetime
     notes: Optional[str]
     exercise: ExerciseResponse
@@ -107,13 +122,19 @@ class WorkoutEntryResponse(BaseModel):
 # Progress schemas
 class ProgressDataPoint(BaseModel):
     date: str
-    weight: float
-    reps: int
-    sets: int
+    weight: Optional[float] = None
+    reps: Optional[int] = None
+    sets: Optional[int] = None
+    time_minutes: Optional[float] = None
+    distance_km: Optional[float] = None
+    primary_metric: float  # Métrica principal para el gráfico
+    primary_label: str    # Etiqueta de la métrica principal
 
 class ProgressStats(BaseModel):
-    max_weight: float
-    avg_weight: float
-    last_weight: float
+    max_primary: float
+    avg_primary: float
+    last_primary: float
     total_sessions: int
+    primary_metric_name: str  # "Peso", "Tiempo", etc.
+    primary_metric_unit: str  # "kg", "min", etc.
     progress_data: List[ProgressDataPoint]

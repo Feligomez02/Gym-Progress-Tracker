@@ -76,19 +76,19 @@ export default function ProgressChart({ exerciseId }: ProgressChartProps) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="text-center">
           <div className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>
-            {progressData.max_weight} kg
+            {progressData.max_primary} {progressData.primary_metric_unit}
           </div>
-          <div className="text-sm" style={{ color: 'var(--gray-600)' }}>Peso Máximo</div>
+          <div className="text-sm" style={{ color: 'var(--gray-600)' }}>Máximo</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold" style={{ color: 'var(--accent)' }}>
-            {progressData.avg_weight.toFixed(1)} kg
+            {progressData.avg_primary.toFixed(1)} {progressData.primary_metric_unit}
           </div>
           <div className="text-sm" style={{ color: 'var(--gray-600)' }}>Promedio</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold" style={{ color: 'var(--secondary)' }}>
-            {progressData.last_weight} kg
+            {progressData.last_primary} {progressData.primary_metric_unit}
           </div>
           <div className="text-sm" style={{ color: 'var(--gray-600)' }}>Último</div>
         </div>
@@ -112,17 +112,30 @@ export default function ProgressChart({ exerciseId }: ProgressChartProps) {
             <YAxis 
               tick={{ fontSize: 12, fill: 'var(--gray-700)' }}
               label={{ 
-                value: 'Peso (kg)', 
+                value: `${progressData.primary_metric_name} (${progressData.primary_metric_unit})`, 
                 angle: -90, 
                 position: 'insideLeft',
                 style: { textAnchor: 'middle', fill: 'var(--gray-700)' }
               }}
             />
             <Tooltip 
-              formatter={(value: any, name: string) => [
-                name === 'weight' ? `${value} kg` : value,
-                name === 'weight' ? 'Peso' : name === 'reps' ? 'Repeticiones' : 'Series'
-              ]}
+              formatter={(value: any, name: string) => {
+                if (name === 'primary_metric') {
+                  return [`${value} ${progressData.primary_metric_unit}`, progressData.primary_metric_name];
+                }
+                // Mostrar datos adicionales disponibles
+                const tooltipData = chartData.find(d => d.primary_metric === value);
+                if (tooltipData) {
+                  const extraInfo = [];
+                  if (tooltipData.weight) extraInfo.push(`Peso: ${tooltipData.weight} kg`);
+                  if (tooltipData.reps) extraInfo.push(`Reps: ${tooltipData.reps}`);
+                  if (tooltipData.sets) extraInfo.push(`Series: ${tooltipData.sets}`);
+                  if (tooltipData.time_minutes) extraInfo.push(`Tiempo: ${tooltipData.time_minutes} min`);
+                  if (tooltipData.distance_km) extraInfo.push(`Distancia: ${tooltipData.distance_km} km`);
+                  return [extraInfo.join(' | '), 'Detalles'];
+                }
+                return [value, name];
+              }}
               labelFormatter={(label) => `Fecha: ${label}`}
               contentStyle={{
                 backgroundColor: '#ffffff',
@@ -134,7 +147,7 @@ export default function ProgressChart({ exerciseId }: ProgressChartProps) {
             />
             <Line 
               type="monotone" 
-              dataKey="weight" 
+              dataKey="primary_metric" 
               stroke="var(--primary)" 
               strokeWidth={3}
               dot={{ fill: 'var(--primary)', strokeWidth: 2, r: 4 }}

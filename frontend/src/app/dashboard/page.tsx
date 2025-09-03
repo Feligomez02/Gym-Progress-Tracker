@@ -194,12 +194,49 @@ export default function DashboardPage() {
                 onChange={(e) => setSelectedExerciseForChart(Number(e.target.value) || null)}
                 className="input-field mb-4"
               >
-                <option value="" className="text-medium-contrast">Seleccionar ejercicio</option>
-                {exercises.map((exercise) => (
-                  <option key={exercise.id} value={exercise.id} className="text-high-contrast">
-                    {exercise.name}
-                  </option>
-                ))}
+                <option value="">Seleccionar ejercicio para ver progreso</option>
+                {(() => {
+                  // Agrupar ejercicios por muscle_group
+                  const groupedExercises = exercises.reduce((groups, exercise) => {
+                    const group = exercise.muscle_group;
+                    if (!groups[group]) {
+                      groups[group] = [];
+                    }
+                    groups[group].push(exercise);
+                    return groups;
+                  }, {} as Record<string, typeof exercises>);
+
+                  // Orden preferido de grupos musculares con iconos
+                  const muscleGroupsWithIcons = [
+                    { name: 'Pecho', icon: '💪' },
+                    { name: 'Espalda', icon: '🏋️' },
+                    { name: 'Piernas', icon: '🦵' },
+                    { name: 'Glúteos', icon: '🍑' },
+                    { name: 'Hombros', icon: '💪' },
+                    { name: 'Brazos', icon: '💪' },
+                    { name: 'Abdomen', icon: '🔥' },
+                    { name: 'Cardio', icon: '🏃' },
+                    { name: 'Funcional', icon: '⚡' },
+                    { name: 'Otro', icon: '🏃' }
+                  ];
+
+                  return muscleGroupsWithIcons.map(({ name, icon }) => {
+                    const exercisesInGroup = groupedExercises[name];
+                    if (!exercisesInGroup || exercisesInGroup.length === 0) return null;
+
+                    return (
+                      <optgroup key={name} label={`${icon} ${name}`}>
+                        {exercisesInGroup
+                          .sort((a, b) => a.name.localeCompare(b.name))
+                          .map((exercise) => (
+                            <option key={exercise.id} value={exercise.id}>
+                              {exercise.name}
+                            </option>
+                          ))}
+                      </optgroup>
+                    );
+                  }).filter(Boolean);
+                })()}
               </select>
               {selectedExerciseForChart ? (
                 <div className="slide-up">
@@ -216,13 +253,13 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Exercise Management mejorado */}
+        {/* Exercise Management mejorado con agrupación */}
         <div className="mt-8 card fade-in">
           <div className="p-6 border-b border-gray-100">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-semibold text-high-contrast">Gestión de Ejercicios</h2>
-                <p className="text-medium-contrast mt-1">Administra tu catálogo de ejercicios</p>
+                <p className="text-medium-contrast mt-1">Administra tu catálogo de ejercicios agrupados por músculo</p>
               </div>
               <button
                 onClick={() => setShowExerciseForm(true)}
@@ -242,40 +279,103 @@ export default function DashboardPage() {
                 />
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="space-y-8">
                 {exercises.length > 0 ? (
-                  exercises.map((exercise, index) => (
-                    <div 
-                      key={exercise.id} 
-                      className="card border border-gray-200 p-4 hover:shadow-md transition-all duration-200 fade-in"
-                      style={{ animationDelay: `${index * 0.05}s` }}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-high-contrast">{exercise.name}</h3>
-                          <p className="text-sm font-medium mt-1" style={{ color: 'var(--accent)' }}>
-                            {exercise.muscle_group}
-                          </p>
-                          {exercise.description && (
-                            <p className="text-sm text-medium-contrast mt-2 line-clamp-2">
-                              {exercise.description}
-                            </p>
-                          )}
-                        </div>
-                        <span 
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            exercise.user_id 
-                              ? 'bg-gradient-primary text-white' 
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
+                  (() => {
+                    // Agrupar ejercicios por muscle_group
+                    const groupedExercises = exercises.reduce((groups, exercise) => {
+                      const group = exercise.muscle_group;
+                      if (!groups[group]) {
+                        groups[group] = [];
+                      }
+                      groups[group].push(exercise);
+                      return groups;
+                    }, {} as Record<string, typeof exercises>);
+
+                    // Definir orden de grupos y iconos
+                    const muscleGroupOrder = [
+                      { name: 'Pecho', icon: '💪', color: 'var(--primary)' },
+                      { name: 'Espalda', icon: '🏋️', color: 'var(--accent)' },
+                      { name: 'Piernas', icon: '🦵', color: 'var(--secondary)' },
+                      { name: 'Glúteos', icon: '🍑', color: '#E91E63' },
+                      { name: 'Hombros', icon: '💪', color: '#FF9800' },
+                      { name: 'Brazos', icon: '💪', color: '#9C27B0' },
+                      { name: 'Abdomen', icon: '🔥', color: '#F44336' },
+                      { name: 'Cardio', icon: '🏃', color: '#2196F3' },
+                      { name: 'Funcional', icon: '⚡', color: '#4CAF50' },
+                      { name: 'Otro', icon: '🏃', color: 'var(--gray-600)' }
+                    ];
+
+                    return muscleGroupOrder.map((muscleGroup, groupIndex) => {
+                      const exercisesInGroup = groupedExercises[muscleGroup.name];
+                      if (!exercisesInGroup || exercisesInGroup.length === 0) return null;
+
+                      return (
+                        <div 
+                          key={muscleGroup.name} 
+                          className="fade-in"
+                          style={{ animationDelay: `${groupIndex * 0.1}s` }}
                         >
-                          {exercise.user_id ? 'Personal' : 'Predefinido'}
-                        </span>
-                      </div>
-                    </div>
-                  ))
+                          {/* Header del grupo muscular */}
+                          <div className="flex items-center gap-3 mb-4">
+                            <span className="text-2xl">{muscleGroup.icon}</span>
+                            <div>
+                              <h3 
+                                className="text-lg font-semibold"
+                                style={{ color: muscleGroup.color }}
+                              >
+                                {muscleGroup.name}
+                              </h3>
+                              <p className="text-sm text-medium-contrast">
+                                {exercisesInGroup.length} ejercicio{exercisesInGroup.length !== 1 ? 's' : ''}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Grid de ejercicios del grupo */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ml-8">
+                            {exercisesInGroup.map((exercise, index) => (
+                              <div 
+                                key={exercise.id} 
+                                className="card border border-gray-200 p-4 hover:shadow-md transition-all duration-200 slide-up"
+                                style={{ 
+                                  animationDelay: `${(groupIndex * 0.1) + (index * 0.05)}s`,
+                                  borderLeft: `4px solid ${muscleGroup.color}`
+                                }}
+                              >
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <h4 className="font-semibold text-high-contrast">
+                                      {exercise.name}
+                                    </h4>
+                                    {exercise.description && (
+                                      <p className="text-sm text-medium-contrast mt-2 line-clamp-2">
+                                        {exercise.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <span 
+                                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                      exercise.user_id 
+                                        ? 'text-white' 
+                                        : 'bg-gray-100 text-gray-800'
+                                    }`}
+                                    style={{
+                                      backgroundColor: exercise.user_id ? muscleGroup.color : undefined
+                                    }}
+                                  >
+                                    {exercise.user_id ? 'Personal' : 'Predefinido'}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    }).filter(Boolean);
+                  })()
                 ) : (
-                  <div className="col-span-full text-center text-low-contrast py-12">
+                  <div className="text-center text-low-contrast py-12">
                     <Dumbbell size={48} className="mx-auto mb-4 opacity-50" />
                     <p className="font-medium">No hay ejercicios disponibles</p>
                     <p className="text-sm">Agrega tu primer ejercicio personalizado</p>
